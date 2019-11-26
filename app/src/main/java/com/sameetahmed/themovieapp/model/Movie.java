@@ -23,6 +23,10 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
+    public Movie(int movieId) {
+        this.id = movieId;
+    }
+
     public Movie getMovie() {
         return this.movie;
     }

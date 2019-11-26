@@ -1,9 +1,9 @@
-package com.sameetahmed.themovieapp.model.json;
+package com.sameetahmed.themovieapp.model.moviejson;
 
 import com.google.gson.annotations.SerializedName;
 import com.sameetahmed.themovieapp.model.Movie;
 
-public class Result {
+public class MovieResult {
     @SerializedName("popularity")
     private double popularity;
     @SerializedName("vote_count")
@@ -19,7 +19,7 @@ public class Result {
     @SerializedName("release_date")
     private String releaseDate;
 
-    public Result(double popularity, int voteCount, String posterPath, int id, String title, String overview, String releaseDate) {
+    public MovieResult(double popularity, int voteCount, String posterPath, int id, String title, String overview, String releaseDate) {
         this.popularity = popularity;
         this.voteCount = voteCount;
         this.posterPath = posterPath;

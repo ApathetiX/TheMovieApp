@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.sameetahmed.themovieapp.DetailActivity;
+import com.sameetahmed.themovieapp.activities.DetailActivity;
 import com.sameetahmed.themovieapp.R;
 import com.sameetahmed.themovieapp.model.Movie;
 import com.squareup.picasso.Picasso;

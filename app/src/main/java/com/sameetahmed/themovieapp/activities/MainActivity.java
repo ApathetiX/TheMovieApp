@@ -1,9 +1,14 @@
-package com.sameetahmed.themovieapp;
+package com.sameetahmed.themovieapp.activities;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -13,9 +18,12 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.sameetahmed.themovieapp.Constants;
+import com.sameetahmed.themovieapp.R;
 import com.sameetahmed.themovieapp.adapter.MovieAdapter;
 import com.sameetahmed.themovieapp.model.Movie;
-import com.sameetahmed.themovieapp.model.json.Result;
+import com.sameetahmed.themovieapp.model.moviejson.MovieResponse;
+import com.sameetahmed.themovieapp.model.moviejson.MovieResult;
 
 import org.json.JSONException;
 
@@ -23,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private NetworkInfo networkInfo;
     private MovieAdapter movieAdapter;
     private static int lastFirstVisiblePosition;
+    private SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +64,14 @@ public class MainActivity extends AppCompatActivity {
         movieAdapter = new MovieAdapter(movies, getApplicationContext());
         recyclerView.setAdapter(movieAdapter);
 
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (isNetworkAvailable()) {
-            loadData(Constants.POPULAR_URL);
+            if (mSharedPreferences.getBoolean(getString(R.string.show_popular_key), true)) {
+                loadData(Constants.POPULAR_URL);
+            } else if (mSharedPreferences.getBoolean(getString(R.string.saved_highest_rated), true)) {
+                loadData(Constants.HIGHEST_RATED_URL);
+            } else loadData(Constants.POPULAR_URL);
         }
 
 
@@ -109,11 +125,11 @@ public class MainActivity extends AppCompatActivity {
     public void jsonParse(String json) throws JSONException {
         movies.clear(); // Clears the list of movies
         Gson gson = new Gson();
-        com.sameetahmed.themovieapp.model.json.Response response;
-        response = gson.fromJson(json, com.sameetahmed.themovieapp.model.json.Response.class);
-        List<Result> results = response.getResultList();
-        for (Result result : results) {
-            movies.add(result.makeMovie());
+        MovieResponse movieResponse;
+        movieResponse = gson.fromJson(json, MovieResponse.class);
+        List<MovieResult> movieResults = movieResponse.getMovieResultList();
+        for (MovieResult movieResult : movieResults) {
+            movies.add(movieResult.makeMovie());
         }
         movieAdapter.replaceData(movies); // Reloads movie data into adapter
         // Restore scrolls position
@@ -133,6 +149,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(Constants.LAST_POSITION_KEY, lastFirstVisiblePosition);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.favorites:
+                Intent favoriteIntent = new Intent(this, FavoritesActivity.class);
+                startActivity(favoriteIntent);
+                return true;
+            case R.id.settings:
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
